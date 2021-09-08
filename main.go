@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"go-web/gw"
 	"log"
 	"net/http"
@@ -12,14 +11,19 @@ func main() {
 
 	r := gw.New()
 
-	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "URL.Path = %q\n", r.URL.Path)
+	r.Get("/", func(c *gw.Context) {
+		c.HTML(http.StatusOK, "<h1>hello world</h1>")
 	})
 
-	r.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
-		for k, v := range r.Header {
-			fmt.Fprintf(w, "Header[%q] = %q \n", k, v)
-		}
+	r.Get("/hello", func(c *gw.Context) {
+		c.String(http.StatusOK, "hello %s,you're at %s \n", c.Query("name"), c.Path)
+	})
+
+	r.Post("/registry", func(c *gw.Context) {
+		c.JSON(http.StatusOK, gw.H{
+			"username": c.PostForm("username"),
+			"password": c.PostForm("password"),
+		})
 	})
 
 	_ = r.Run(":9999")
